@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --c-bg:           #0d0f14;
+  --c-bg-soft:      #13161e;
+  --c-bg-card:      #181c27;
+  --c-bg-mute:      #1e2330;
+
+  --c-border:       rgba(255,255,255,0.07);
+  --c-border-hover: rgba(255,255,255,0.16);
+
+  --c-gold:         #c9a84c;
+  --c-gold-light:   #e8c97a;
+  --c-gold-dim:     rgba(201,168,76,0.12);
+
+  --c-text:         #e8e6df;
+  --c-text-soft:    #9b9891;
+  --c-text-muted:   #5e5c57;
+
+  --c-danger:       #e05a4e;
+  --c-danger-dim:   rgba(224,90,78,0.12);
+
+  --font-display:   'Playfair Display', Georgia, serif;
+  --font-body:      'DM Sans', system-ui, sans-serif;
+
+  --r-sm:  6px;
+  --r-md:  12px;
+  --r-lg:  20px;
+
+  --shadow-card: 0 4px 40px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 40px rgba(201,168,76,0.06);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.07) 0%, transparent 60%);
+}

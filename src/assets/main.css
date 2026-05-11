@@ -1,0 +1,8 @@
+@import './base.css';
+
+a {
+  color: var(--c-gold);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+a:hover { color: var(--c-gold-light); }

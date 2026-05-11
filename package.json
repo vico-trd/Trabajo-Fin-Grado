@@ -1,7 +1,7 @@
 {
-  "name": "trabajo-fin-grado",
-  "private": true,
+  "name": "artelocal",
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,11 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.32"
+    "firebase": "^12.12.1",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
-    "sass": "^1.99.0",
-    "vite": "^8.0.9"
+    "vite": "^8.0.12",
+    "vite-plugin-vue-devtools": "^8.1.1"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

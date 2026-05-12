@@ -35,12 +35,12 @@ defineProps({
   border-radius: var(--r-lg);
   overflow: hidden;
   text-decoration: none;
-  transition: all 0.25s;
+  transition: all 0.2s;
 }
 .artwork-card:hover {
   border-color: var(--c-border-hover);
   transform: translateY(-4px);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-hover);
 }
 
 .card-img {
@@ -56,7 +56,7 @@ defineProps({
   object-fit: cover;
   transition: transform 0.4s;
 }
-.artwork-card:hover .card-img img { transform: scale(1.04); }
+.artwork-card:hover .card-img img { transform: scale(1.05); }
 
 .img-placeholder {
   width: 100%;
@@ -70,14 +70,15 @@ defineProps({
 
 .badge-sale {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
+  top: 0.65rem;
+  right: 0.65rem;
   background: var(--c-gold);
-  color: #0d0f14;
+  color: #fff;
   font-size: 0.7rem;
   font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--r-sm);
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
 }
 
 .card-body {
@@ -101,6 +102,7 @@ defineProps({
 .card-artist {
   font-size: 0.8rem;
   color: var(--c-text-muted);
+  font-weight: 500;
 }
 
 .card-meta {
@@ -115,14 +117,15 @@ defineProps({
   font-size: 0.72rem;
   color: var(--c-gold);
   background: var(--c-gold-dim);
-  padding: 0.15rem 0.5rem;
+  padding: 0.15rem 0.55rem;
   border-radius: 99px;
+  font-weight: 500;
 }
 
 .card-price {
   font-size: 0.8rem;
   color: var(--c-text-soft);
-  font-weight: 500;
+  font-weight: 600;
   margin-left: auto;
 }
 

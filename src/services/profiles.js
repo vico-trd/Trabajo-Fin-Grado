@@ -2,7 +2,7 @@ import {
   collection, addDoc, getDocs, updateDoc, doc,
   query, where,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db } from '../main'
 
 const COL = 'artistProfiles'
 

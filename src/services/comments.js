@@ -2,7 +2,7 @@ import {
   collection, addDoc, getDocs, deleteDoc, doc,
   query, where, orderBy, serverTimestamp,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db } from '../main'
 
 const COL = 'comments'
 

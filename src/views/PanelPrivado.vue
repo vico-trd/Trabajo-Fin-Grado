@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import PerfilUsuario from "../components/PerfilUsuario.vue";
 
 const usuario = ref(null);
+const auth = getAuth();
 
 onMounted(() => {
   onAuthStateChanged(auth, (user) => {

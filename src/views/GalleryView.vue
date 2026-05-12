@@ -77,28 +77,33 @@ const obrasFiltradas = computed(() => {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 h1 {
   font-family: var(--font-display);
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: var(--c-text);
+  letter-spacing: -0.02em;
 }
 
 .buscador {
   background: var(--c-bg-card);
-  border: 1px solid var(--c-border);
+  border: 1.5px solid var(--c-border);
   border-radius: var(--r-sm);
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
   color: var(--c-text);
   font-family: var(--font-body);
   font-size: 0.875rem;
-  width: 260px;
+  width: 280px;
   outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.buscador:focus { border-color: var(--c-gold); }
+.buscador:focus {
+  border-color: var(--c-gold);
+  box-shadow: 0 0 0 3px rgba(234,76,137,0.08);
+}
 
 .filtros {
   display: flex;
@@ -109,27 +114,28 @@ h1 {
 
 .filtro-btn {
   background: var(--c-bg-card);
-  border: 1px solid var(--c-border);
+  border: 1.5px solid var(--c-border);
   color: var(--c-text-soft);
-  padding: 0.35rem 0.85rem;
+  padding: 0.4rem 1rem;
   border-radius: 99px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   font-family: var(--font-body);
 }
 .filtro-btn:hover { border-color: var(--c-border-hover); color: var(--c-text); }
-.filtro-btn.activo { background: var(--c-gold-dim); border-color: var(--c-gold); color: var(--c-gold); }
+.filtro-btn.activo {
+  background: var(--c-gold);
+  border-color: var(--c-gold);
+  color: #fff;
+}
 
 .grid-obras {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
 }
 
-.estado-vacio {
-  text-align: center;
-  padding: 4rem;
-  color: var(--c-text-muted);
-}
+.estado-vacio { text-align: center; padding: 5rem; color: var(--c-text-muted); font-size: 0.9rem; }
 </style>

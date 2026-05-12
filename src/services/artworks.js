@@ -3,7 +3,7 @@ import {
   updateDoc, deleteDoc, query, where, orderBy, limit,
   serverTimestamp, increment,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db } from '../main'
 
 const COL = 'artworks'
 

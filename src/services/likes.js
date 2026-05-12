@@ -2,7 +2,7 @@ import {
   collection, addDoc, getDocs, deleteDoc, doc,
   query, where,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db } from '../main'
 import { incrementLikes, decrementLikes } from './artworks'
 
 const COL = 'likes'

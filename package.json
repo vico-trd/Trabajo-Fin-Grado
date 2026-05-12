@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "firebase": "^12.12.1",
+    "firebase-admin": "^13.9.0",
+    "leaflet": "^1.9.4",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
+    "stripe": "^22.1.1",
     "vue": "^3.5.32",
     "vue-router": "^5.0.6"
   },

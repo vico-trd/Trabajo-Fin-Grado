@@ -1,16 +1,40 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { createArtwork } from "../services/artworks";
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { createArtwork, getArtwork, updateArtwork } from "../services/artworks";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { supabase } from "../supabase";
 
 const router = useRouter();
+const route = useRoute();
 const usuario = ref(null);
 const auth = getAuth();
+const modoEdicion = computed(() => !!route.params.id);
+
 onMounted(() => {
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     usuario.value = user ?? null;
+    if (user && modoEdicion.value) {
+      const obra = await getArtwork(route.params.id);
+      if (!obra || obra.artistEmail !== user.email) {
+        router.push("/mi-perfil");
+        return;
+      }
+      form.value = {
+        title: obra.title || "",
+        category: obra.category || "",
+        description: obra.description || "",
+        technique: obra.technique || "",
+        dimensions: obra.dimensions || "",
+        year: obra.year || new Date().getFullYear(),
+        forSale: obra.forSale || false,
+        price: obra.price || "",
+        acceptsCommissions: obra.acceptsCommissions || false,
+        location: obra.location || "",
+      };
+      imagenPreview.value = obra.imageUrl || null;
+      imagenExistente.value = obra.imageUrl || null;
+    }
   });
 });
 
@@ -39,6 +63,7 @@ const form = ref({
 
 const imagenArchivo = ref(null);
 const imagenPreview = ref(null);
+const imagenExistente = ref(null);
 const subiendo = ref(false);
 const error = ref("");
 
@@ -57,7 +82,7 @@ async function publicar() {
   subiendo.value = true;
   error.value = "";
   try {
-    let imageUrl = "";
+    let imageUrl = imagenExistente.value || "";
     if (imagenArchivo.value) {
       const ruta = `${usuario.value.uid}/${Date.now()}_${imagenArchivo.value.name}`;
       const { data, error: uploadError } = await supabase.storage
@@ -69,7 +94,11 @@ async function publicar() {
         .getPublicUrl(ruta);
       imageUrl = urlData.publicUrl;
     }
-    await createArtwork({ ...form.value, imageUrl }, usuario.value);
+    if (modoEdicion.value) {
+      await updateArtwork(route.params.id, { ...form.value, imageUrl });
+    } else {
+      await createArtwork({ ...form.value, imageUrl }, usuario.value);
+    }
     router.push("/mi-perfil");
   } catch (e) {
     error.value = "Error: " + e.message;
@@ -81,7 +110,7 @@ async function publicar() {
 
 <template>
   <div class="upload-page">
-    <h1>Subir obra</h1>
+    <h1>{{ modoEdicion ? 'Editar obra' : 'Subir obra' }}</h1>
 
     <form class="upload-form" @submit.prevent="publicar">
       <!-- Imagen -->
@@ -174,7 +203,7 @@ async function publicar() {
       <p v-if="error" class="error">{{ error }}</p>
 
       <button type="submit" class="btn-primary" :disabled="subiendo">
-        {{ subiendo ? "Publicando..." : "Publicar obra" }}
+        {{ subiendo ? (modoEdicion ? 'Guardando...' : 'Publicando...') : (modoEdicion ? 'Guardar cambios' : 'Publicar obra') }}
       </button>
     </form>
   </div>

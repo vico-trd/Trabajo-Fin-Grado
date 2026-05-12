@@ -4,6 +4,8 @@ import { useRoute } from "vue-router";
 import { getArtworksByArtist } from "../services/artworks";
 import { getProfile } from "../services/profiles";
 import { createCommission } from "../services/commissions";
+import { getValoracionesArtista } from "../services/valoraciones";
+import { seguirArtista, dejarDeSeguir, estaSiguiendo } from "../services/seguimientos";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ArtworkCard from "../components/ArtworkCard.vue";
 
@@ -20,6 +22,18 @@ const artistEmail = decodeURIComponent(route.params.email);
 const obras = ref([]);
 const perfil = ref(null);
 const cargando = ref(true);
+const valoraciones = ref({ media: null, total: 0 });
+const siguiendo = ref(false);
+const toggleandoSeguir = ref(false);
+
+onMounted(() => {
+  onAuthStateChanged(auth, async (user) => {
+    usuario.value = user ?? null;
+    if (user && user.email !== artistEmail) {
+      siguiendo.value = await estaSiguiendo(user.email, artistEmail);
+    }
+  });
+});
 
 // Formulario de encargo
 const mostrarFormEncargo = ref(false);
@@ -33,12 +47,29 @@ const encargo = ref({
 const encargoEnviado = ref(false);
 
 onMounted(async () => {
-  [obras.value, perfil.value] = await Promise.all([
+  const [obrasCargadas, perfilCargado, valData] = await Promise.all([
     getArtworksByArtist(artistEmail),
     getProfile(artistEmail),
+    getValoracionesArtista(artistEmail),
   ]);
+  obras.value = obrasCargadas;
+  perfil.value = perfilCargado;
+  valoraciones.value = valData;
   cargando.value = false;
 });
+
+async function toggleSeguir() {
+  if (!usuario.value) return;
+  toggleandoSeguir.value = true;
+  if (siguiendo.value) {
+    await dejarDeSeguir(usuario.value.email, artistEmail);
+    siguiendo.value = false;
+  } else {
+    await seguirArtista(usuario.value.email, artistEmail);
+    siguiendo.value = true;
+  }
+  toggleandoSeguir.value = false;
+}
 
 async function enviarEncargo() {
   if (
@@ -72,6 +103,10 @@ async function enviarEncargo() {
           <p v-if="perfil?.location" class="artista-ubicacion">
             📍 {{ perfil.location }}
           </p>
+          <p v-if="valoraciones.media" class="artista-rating">
+            <span class="rating-stars">★</span> {{ valoraciones.media }}
+            <span class="rating-total">({{ valoraciones.total }} valoración{{ valoraciones.total !== 1 ? 'es' : '' }})</span>
+          </p>
           <p v-if="perfil?.bio" class="artista-bio">{{ perfil.bio }}</p>
           <div v-if="perfil" class="artista-links">
             <a
@@ -91,14 +126,7 @@ async function enviarEncargo() {
           </div>
         </div>
 
-        <div
-          v-if="
-            (perfil?.acceptsCommissions ||
-              obras.some((o) => o.acceptsCommissions)) &&
-            usuario?.email !== artistEmail
-          "
-          class="encargo-zona"
-        >
+        <div class="encargo-zona">
           <RouterLink
             v-if="usuario && usuario.email !== artistEmail"
             :to="`/mensajes?para=${artistEmail}`"
@@ -107,7 +135,16 @@ async function enviarEncargo() {
             💬 Enviar mensaje
           </RouterLink>
           <button
-            v-if="!encargoEnviado"
+            v-if="usuario && usuario.email !== artistEmail"
+            class="btn-seguir"
+            :class="{ siguiendo }"
+            :disabled="toggleandoSeguir"
+            @click="toggleSeguir"
+          >
+            {{ siguiendo ? '✓ Siguiendo' : '+ Seguir' }}
+          </button>
+          <button
+            v-if="!encargoEnviado && usuario && usuario.email !== artistEmail && (perfil?.acceptsCommissions || obras.some(o => o.acceptsCommissions))"
             class="btn-primary"
             @click="mostrarFormEncargo = !mostrarFormEncargo"
           >
@@ -197,6 +234,9 @@ h1 {
   letter-spacing: -0.02em; margin-bottom: 0.4rem;
 }
 .artista-ubicacion { color: var(--c-text-muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+.artista-rating { font-size: 0.88rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem; }
+.rating-stars { color: #f59e0b; font-size: 1rem; }
+.rating-total { color: var(--c-text-muted); font-size: 0.8rem; }
 .artista-bio { color: var(--c-text-soft); line-height: 1.65; margin-bottom: 0.75rem; font-size: 0.925rem; }
 .artista-links { display: flex; gap: 0.75rem; }
 .artista-links a {
@@ -236,6 +276,22 @@ h1 {
   transition: all 0.15s;
 }
 .btn-mensaje:hover { border-color: var(--c-gold); color: var(--c-gold); background: var(--c-gold-dim); }
+
+.btn-seguir {
+  display: inline-block;
+  background: var(--c-bg-soft);
+  border: 1.5px solid var(--c-border);
+  color: var(--c-text-soft);
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--r-sm);
+  font-size: 0.875rem; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-body);
+}
+.btn-seguir:hover { border-color: var(--c-accent); color: var(--c-accent); }
+.btn-seguir.siguiendo { background: var(--c-gold-dim); border-color: var(--c-gold); color: var(--c-gold); }
+.btn-seguir.siguiendo:hover { background: rgba(234,76,137,0.08); color: #e44; border-color: #e44; }
 
 .form-encargo {
   background: var(--c-bg-card);

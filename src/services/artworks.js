@@ -9,10 +9,13 @@ const COL = 'artworks'
 
 export async function getArtworks({ categoria, max = 50 } = {}) {
   let q = categoria
-    ? query(collection(db, COL), where('category', '==', categoria), orderBy('createdAt', 'desc'), limit(max))
+    ? query(collection(db, COL), where('category', '==', categoria), limit(max))
     : query(collection(db, COL), orderBy('createdAt', 'desc'), limit(max))
   const snap = await getDocs(q)
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  return categoria
+    ? docs.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
+    : docs
 }
 
 export async function getArtwork(id) {
@@ -24,10 +27,10 @@ export async function getArtworksByArtist(artistEmail) {
   const q = query(
     collection(db, COL),
     where('artistEmail', '==', artistEmail),
-    orderBy('createdAt', 'desc'),
   )
   const snap = await getDocs(q)
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  return docs.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
 }
 
 export async function createArtwork(data, user) {

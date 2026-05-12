@@ -23,6 +23,23 @@ export async function enviarMensaje(email1, email2, texto) {
     de: email1,
     para: email2,
     texto,
+    tipo: 'texto',
+    createdAt: serverTimestamp(),
+  })
+}
+
+export async function enviarMensajeOferta(email1, email2, { ofertaId, obraTitulo, obraImagen, obraId, precio }) {
+  const chatId = getChatId(email1, email2)
+  await addDoc(collection(db, 'chats', chatId, 'messages'), {
+    de: email1,
+    para: email2,
+    texto: `Oferta por «${obraTitulo}»: ${precio}€`,
+    tipo: 'oferta',
+    ofertaId,
+    obraTitulo,
+    obraImagen: obraImagen || '',
+    obraId,
+    precio,
     createdAt: serverTimestamp(),
   })
 }

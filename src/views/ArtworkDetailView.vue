@@ -15,6 +15,8 @@ const meGusta = ref(false)
 const cargando = ref(true)
 const textoComentario = ref('')
 const enviandoComentario = ref(false)
+const comprando = ref(false)
+const errorPago = ref('')
 
 onMounted(() => {
   onAuthStateChanged(auth, async (user) => {
@@ -44,6 +46,31 @@ async function enviarComentario() {
   comentarios.value = await getComments(obra.value.id)
   textoComentario.value = ''
   enviandoComentario.value = false
+}
+
+async function comprar() {
+  if (!usuario.value || !obra.value) return
+  comprando.value = true
+  errorPago.value = ''
+  try {
+    const res = await fetch('http://localhost:9999/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: obra.value.title,
+        precio: obra.value.price,
+        imagen: obra.value.imageUrl || '',
+        obraId: obra.value.id,
+        artEmail: obra.value.artistEmail || '',
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Error al iniciar el pago')
+    window.location.href = data.url
+  } catch (e) {
+    errorPago.value = e.message
+    comprando.value = false
+  }
 }
 </script>
 
@@ -96,7 +123,17 @@ async function enviarComentario() {
               ♥ {{ obra.likesCount ?? 0 }}
             </button>
             <span v-if="obra.forSale" class="precio">{{ obra.price }} €</span>
+            <button
+              v-if="obra.forSale && obra.artistEmail !== usuario?.email"
+              class="btn-comprar"
+              :disabled="comprando || !usuario"
+              @click="comprar"
+              :title="!usuario ? 'Inicia sesión para comprar' : ''"
+            >
+              {{ comprando ? 'Redirigiendo...' : 'Comprar' }}
+            </button>
           </div>
+          <p v-if="errorPago" class="error-pago">{{ errorPago }}</p>
 
           <div v-if="obra.acceptsCommissions" class="encargo-aviso">
             Este artista acepta encargos.
@@ -213,6 +250,19 @@ dd { color: var(--c-text-soft); font-size: 0.875rem; }
 .btn-like:disabled { opacity: 0.5; cursor: default; }
 
 .precio { font-size: 1.4rem; font-weight: 700; color: var(--c-text); }
+
+.btn-comprar {
+  background: var(--c-gold); color: #fff; border: none;
+  padding: 0.6rem 1.75rem; border-radius: var(--r-sm);
+  font-family: var(--font-body); font-weight: 700; font-size: 1rem;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-comprar:hover:not(:disabled) { background: var(--c-gold-light); transform: translateY(-1px); }
+.btn-comprar:disabled { opacity: 0.6; cursor: default; }
+
+.error-pago {
+  margin-top: 0.6rem; font-size: 0.82rem; color: #dc2626;
+}
 
 .encargo-aviso {
   margin-top: 1.25rem; padding: 0.85rem 1.1rem;

@@ -12,6 +12,11 @@ export async function getProfile(userEmail) {
   return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() }
 }
 
+export async function getAllProfiles() {
+  const snap = await getDocs(collection(db, COL))
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+}
+
 export async function upsertProfile(userEmail, data) {
   const existing = await getProfile(userEmail)
   if (existing) {

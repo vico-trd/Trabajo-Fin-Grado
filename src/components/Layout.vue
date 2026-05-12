@@ -1,17 +1,30 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { useRouter } from 'vue-router'
+import { escucharOfertasRecibidas } from '../services/ofertas'
 
 const router = useRouter()
 const usuario = ref(null)
 const auth = getAuth()
+const ofertasPendientes = ref(0)
+let unsubOfertas = null
 
 onMounted(() => {
   onAuthStateChanged(auth, (user) => {
     usuario.value = user ?? null
+    if (unsubOfertas) { unsubOfertas(); unsubOfertas = null; }
+    if (user) {
+      unsubOfertas = escucharOfertasRecibidas(user.email, (docs) => {
+        ofertasPendientes.value = docs.filter(o => o.status === 'pending').length
+      })
+    } else {
+      ofertasPendientes.value = 0
+    }
   })
 })
+
+onUnmounted(() => { if (unsubOfertas) unsubOfertas() })
 
 async function salir() {
   await signOut(auth)
@@ -25,14 +38,16 @@ async function salir() {
     <header>
       <RouterLink to="/" class="logo">Arte<span>Local</span></RouterLink>
       <nav>
-        <RouterLink to="/">Inicio</RouterLink>
         <RouterLink to="/galeria">Galería</RouterLink>
         <RouterLink to="/artistas">Artistas</RouterLink>
+        <RouterLink to="/mapa">🗺 Mapa</RouterLink>
         <template v-if="usuario">
-          <RouterLink to="/subir-obra">Subir obra</RouterLink>
-          <RouterLink to="/mi-perfil">Mi Perfil</RouterLink>
+          <RouterLink to="/feed">📰 Feed</RouterLink>
           <RouterLink to="/mensajes">Mensajes</RouterLink>
-          <button class="btn-salir" @click="salir">Salir</button>
+          <RouterLink to="/mi-perfil" class="nav-perfil">
+            Mi Perfil
+            <span v-if="ofertasPendientes > 0" class="nav-badge">{{ ofertasPendientes }}</span>
+          </RouterLink>
         </template>
         <template v-else>
           <RouterLink to="/login" class="btn-acceder">Acceder</RouterLink>
@@ -53,7 +68,7 @@ async function salir() {
         <div class="footer-links">
           <RouterLink to="/galeria">Galería</RouterLink>
           <RouterLink to="/artistas">Artistas</RouterLink>
-          <RouterLink to="/subir-obra">Subir obra</RouterLink>
+          <RouterLink to="/mapa">Mapa</RouterLink>
         </div>
       </div>
       <p class="footer-copy">© 2026 ArteLocal · España</p>
@@ -108,6 +123,18 @@ nav a:hover {
 }
 nav a.router-link-active { color: var(--c-gold); }
 nav a.router-link-exact-active.logo { background: transparent; }
+
+.nav-perfil { position: relative; }
+.nav-badge {
+  position: absolute;
+  top: 2px; right: 2px;
+  background: var(--c-gold); color: #fff;
+  font-size: 0.6rem; font-weight: 700;
+  min-width: 14px; height: 14px;
+  border-radius: 99px; padding: 0 3px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
 
 .btn-acceder {
   background: var(--c-gold) !important;

@@ -1,6 +1,6 @@
 import {
   collection, addDoc, getDocs, deleteDoc, doc,
-  query, where, orderBy, serverTimestamp,
+  query, where, serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../main'
 
@@ -10,10 +10,10 @@ export async function getComments(artworkId) {
   const q = query(
     collection(db, COL),
     where('artworkId', '==', artworkId),
-    orderBy('createdAt', 'asc'),
   )
   const snap = await getDocs(q)
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  return docs.sort((a, b) => (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0))
 }
 
 export async function addComment(artworkId, text, user) {

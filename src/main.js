@@ -17,6 +17,11 @@ import ArtistProfileView from "./views/ArtistProfileView.vue";
 import UploadArtworkView from "./views/UploadArtworkView.vue";
 import MyProfileView from "./views/MyProfileView.vue";
 import MensajesView from "./views/MensajesView.vue";
+import PagoExitoView from "./views/PagoExitoView.vue";
+import PagoCanceladoView from "./views/PagoCanceladoView.vue";
+import FavoritosView from "./views/FavoritosView.vue";
+import MapaArtistasView from "./views/MapaArtistasView.vue";
+import FeedView from "./views/FeedView.vue";
 
 // ── Rutas ──────────────────────────────────────────────────────────────────
 const routes = [
@@ -40,10 +45,20 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: "editar-obra/:id",
+        component: UploadArtworkView,
+        meta: { requiresAuth: true },
+      },
+      {
         path: "mi-perfil",
         component: MyProfileView,
         meta: { requiresAuth: true },
       },
+      { path: "pago-exito", component: PagoExitoView },
+      { path: "pago-cancelado", component: PagoCanceladoView },
+      { path: "favoritos", component: FavoritosView, meta: { requiresAuth: true } },
+      { path: "mapa", component: MapaArtistasView },
+      { path: "feed", component: FeedView, meta: { requiresAuth: true } },
     ],
   },
   { path: "/login", component: LoginView },

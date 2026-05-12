@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:wght@600;700&display=swap');
+
+:root {
+  /* Fondos */
+  --c-bg:           #f8f8f6;
+  --c-bg-soft:      #f2f2ef;
+  --c-bg-card:      #ffffff;
+  --c-bg-mute:      #f0f0ed;
+
+  /* Bordes */
+  --c-border:       #e8e8e4;
+  --c-border-hover: #c8c8c2;
+
+  /* Acento principal — rosa/coral Dribbble */
+  --c-gold:         #ea4c89;
+  --c-gold-light:   #f072a2;
+  --c-gold-dim:     rgba(234,76,137,0.08);
+
+  /* Texto */
+  --c-text:         #1a1a1a;
+  --c-text-soft:    #4a4a4a;
+  --c-text-muted:   #9a9a96;
+
+  /* Danger */
+  --c-danger:       #e05a4e;
+  --c-danger-dim:   rgba(224,90,78,0.08);
+
+  /* Tipografías */
+  --font-display:   'Fraunces', Georgia, serif;
+  --font-body:      'Inter', system-ui, sans-serif;
+
+  /* Radios */
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+
+  /* Sombras */
+  --shadow-card:  0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.10);
+  --shadow-glow:  0 0 40px rgba(234,76,137,0.10);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--c-gold);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover { color: var(--c-gold-light); }

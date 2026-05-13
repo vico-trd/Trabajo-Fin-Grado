@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { getArtworksByArtist, deleteArtwork } from "../services/artworks";
 import { getProfile, upsertProfile } from "../services/profiles";
 import { getValoracionesArtista } from "../services/valoraciones";
@@ -41,6 +41,7 @@ let tickInterval = null;
 let unsubRecibidas = null;
 let unsubEnviadas = null;
 const router = useRouter();
+const route = useRoute();
 
 onMounted(() => {
   tickInterval = setInterval(() => { ahora.value = Date.now(); }, 30000);
@@ -81,6 +82,15 @@ onMounted(() => {
       ofertasEnviadas.value = docs;
     });
   });
+  // Si venimos con query ?tab=ofertas o similar, abrir esa pestaña
+  if (route.query.tab) {
+    pestana.value = route.query.tab;
+  }
+});
+
+// React to query.tab changes (e.g., clicking the badge link)
+watch(() => route.query.tab, (val) => {
+  if (val) pestana.value = val;
 });
 
 onUnmounted(() => {
@@ -229,7 +239,12 @@ const OFERTA_ESTADO_CLASS = {
         class="tab-ofertas"
       >
         Ofertas
-        <span v-if="totalOfertas() > 0" class="badge-notif">{{ totalOfertas() }}</span>
+      </button>
+      <button
+        :class="{ activo: pestana === 'pedidos' }"
+        @click="pestana = 'pedidos'"
+      >
+        Pedidos
       </button>
       <button
         :class="{ activo: pestana === 'estadisticas' }"
@@ -408,6 +423,34 @@ const OFERTA_ESTADO_CLASS = {
           </div>
         </div>
       </section>
+    </div>
+
+    <!-- Tab: Pedidos -->
+    <div v-if="pestana === 'pedidos'" class="pedidos-layout">
+      <div v-if="!ofertasEnviadas.filter(o => o.status === 'paid').length" class="estado-vacio">
+        Aún no has realizado ninguna compra.
+      </div>
+      <div v-else class="lista-pedidos">
+        <div
+          v-for="o in ofertasEnviadas.filter(p => p.status === 'paid')"
+          :key="o.id"
+          class="pedido-card"
+        >
+          <RouterLink :to="`/obra/${o.obraId}`">
+            <img v-if="o.obraImagen" :src="o.obraImagen" class="pedido-thumb" />
+            <div v-else class="pedido-thumb pedido-thumb-placeholder">🖼</div>
+          </RouterLink>
+          <div class="pedido-info">
+            <RouterLink :to="`/obra/${o.obraId}`" class="pedido-titulo">{{ o.obraTitulo }}</RouterLink>
+            <span class="pedido-artista">Artista: <RouterLink :to="`/artista/${encodeURIComponent(o.artEmail)}`">{{ o.artEmail }}</RouterLink></span>
+            <span class="pedido-precio">Pagado: <strong>{{ o.precioOferta }} €</strong></span>
+            <span v-if="o.paidAt" class="pedido-fecha">
+              {{ new Date(o.paidAt.seconds * 1000).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) }}
+            </span>
+          </div>
+          <span class="badge-oferta paid">✓ Comprado</span>
+        </div>
+      </div>
     </div>
 
     <!-- Tab: Estadísticas -->
@@ -663,13 +706,7 @@ h1 {
 
 /* --- Ofertas --- */
 .tab-ofertas { position: relative; }
-.badge-notif {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--c-gold); color: #fff;
-  font-size: 0.65rem; font-weight: 700;
-  width: 16px; height: 16px; border-radius: 50%;
-  position: absolute; top: 6px; right: 6px;
-}
+.badge-notif { display: none; }
 
 .ofertas-layout { display: flex; flex-direction: column; gap: 2rem; margin-top: 0.5rem; }
 .ofertas-seccion { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -725,4 +762,34 @@ h1 {
   font-family: var(--font-body); transition: all 0.15s;
 }
 .btn-pagar:hover { background: var(--c-gold-light); }
+
+/* Pedidos */
+.pedidos-layout { display: flex; flex-direction: column; gap: 1rem; }
+.lista-pedidos { display: flex; flex-direction: column; gap: 0.75rem; }
+.pedido-card {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--c-bg-card); border: 1.5px solid var(--c-border);
+  border-radius: var(--r-lg); padding: 1rem 1.25rem;
+  transition: border-color 0.15s;
+}
+.pedido-card:hover { border-color: var(--c-border-hover); }
+.pedido-thumb {
+  width: 72px; height: 72px; object-fit: cover;
+  border-radius: var(--r-sm); flex-shrink: 0;
+}
+.pedido-thumb-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-bg-soft); font-size: 1.5rem;
+}
+.pedido-info { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 0; }
+.pedido-titulo {
+  font-weight: 600; color: var(--c-text); text-decoration: none;
+  font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pedido-titulo:hover { color: var(--c-gold); }
+.pedido-artista { font-size: 0.8rem; color: var(--c-text-muted); }
+.pedido-artista a { color: var(--c-text-soft); text-decoration: none; }
+.pedido-artista a:hover { color: var(--c-gold); }
+.pedido-precio { font-size: 0.85rem; color: var(--c-text-soft); }
+.pedido-fecha { font-size: 0.75rem; color: var(--c-text-muted); }
 </style>

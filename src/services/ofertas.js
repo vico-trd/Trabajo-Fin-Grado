@@ -44,7 +44,7 @@ export async function rechazarOferta(id) {
 }
 
 export async function marcarOfertaPagada(id) {
-  return updateDoc(doc(db, COL, id), { status: 'paid' })
+  return updateDoc(doc(db, COL, id), { status: 'paid', paidAt: serverTimestamp() })
 }
 
 export async function marcarOfertaExpirada(id) {

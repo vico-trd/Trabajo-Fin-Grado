@@ -3,23 +3,27 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 import { escucharOfertasRecibidas } from '../services/ofertas'
+import { esAdmin } from '../services/admin.js'
 
 const router = useRouter()
 const usuario = ref(null)
 const auth = getAuth()
 const ofertasPendientes = ref(0)
+const isAdmin = ref(false)
 let unsubOfertas = null
 
 onMounted(() => {
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     usuario.value = user ?? null
     if (unsubOfertas) { unsubOfertas(); unsubOfertas = null; }
     if (user) {
       unsubOfertas = escucharOfertasRecibidas(user.email, (docs) => {
         ofertasPendientes.value = docs.filter(o => o.status === 'pending').length
       })
+      isAdmin.value = await esAdmin(user.email)
     } else {
       ofertasPendientes.value = 0
+      isAdmin.value = false
     }
   })
 })
@@ -46,8 +50,9 @@ async function salir() {
           <RouterLink to="/mensajes">Mensajes</RouterLink>
           <RouterLink to="/mi-perfil" class="nav-perfil">
             Mi Perfil
-            <span v-if="ofertasPendientes > 0" class="nav-badge">{{ ofertasPendientes }}</span>
+            <RouterLink v-if="ofertasPendientes > 0" :to="`/mi-perfil?tab=ofertas`" class="nav-badge">{{ ofertasPendientes }}</RouterLink>
           </RouterLink>
+          <RouterLink v-if="isAdmin" to="/admin" class="nav-admin">🛡 Admin</RouterLink>
         </template>
         <template v-else>
           <RouterLink to="/login" class="btn-acceder">Acceder</RouterLink>
@@ -132,8 +137,16 @@ nav a.router-link-exact-active.logo { background: transparent; }
   font-size: 0.6rem; font-weight: 700;
   min-width: 14px; height: 14px;
   border-radius: 99px; padding: 0 3px;
-  display: flex; align-items: center; justify-content: center;
-  pointer-events: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  pointer-events: auto;
+}
+
+.nav-admin {
+  color: #4338ca !important;
+  font-weight: 600 !important;
+  background: rgba(99,102,241,0.1);
+  border-radius: var(--r-sm);
+  padding: 0.25rem 0.65rem !important;
 }
 
 .btn-acceder {

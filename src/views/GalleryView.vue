@@ -19,7 +19,6 @@ const filtros = ref({
   yearMax: '',
   tecnica: '',
   ciudad: '',
-  soloVenta: false,
 })
 
 onMounted(async () => {
@@ -32,7 +31,7 @@ function seleccionarCategoria(cat) {
 }
 
 function limpiarFiltros() {
-  filtros.value = { precioMin: '', precioMax: '', yearMin: '', yearMax: '', tecnica: '', ciudad: '', soloVenta: false }
+  filtros.value = { precioMin: '', precioMax: '', yearMin: '', yearMax: '', tecnica: '', ciudad: '' }
   categoriaActiva.value = ''
   busqueda.value = ''
 }
@@ -42,8 +41,7 @@ const filtrosActivos = computed(() =>
   busqueda.value ||
   filtros.value.precioMin || filtros.value.precioMax ||
   filtros.value.yearMin || filtros.value.yearMax ||
-  filtros.value.tecnica || filtros.value.ciudad ||
-  filtros.value.soloVenta
+  filtros.value.tecnica || filtros.value.ciudad
 )
 
 // Técnicas y ciudades únicas extraídas de los datos
@@ -57,7 +55,8 @@ const ciudadesUnicas = computed(() => {
 })
 
 const obrasFiltradas = computed(() => {
-  let resultado = obras.value
+  // Solo obras en venta (oculta las vendidas y las no puestas a la venta)
+  let resultado = obras.value.filter(o => o.forSale)
 
   if (categoriaActiva.value)
     resultado = resultado.filter(o => o.category === categoriaActiva.value)
@@ -70,11 +69,10 @@ const obrasFiltradas = computed(() => {
     )
   }
 
-  const { precioMin, precioMax, yearMin, yearMax, tecnica, ciudad, soloVenta } = filtros.value
+  const { precioMin, precioMax, yearMin, yearMax, tecnica, ciudad } = filtros.value
 
-  if (soloVenta) resultado = resultado.filter(o => o.forSale)
-  if (precioMin) resultado = resultado.filter(o => o.forSale && Number(o.price) >= Number(precioMin))
-  if (precioMax) resultado = resultado.filter(o => o.forSale && Number(o.price) <= Number(precioMax))
+  if (precioMin) resultado = resultado.filter(o => Number(o.price) >= Number(precioMin))
+  if (precioMax) resultado = resultado.filter(o => Number(o.price) <= Number(precioMax))
   if (yearMin)   resultado = resultado.filter(o => Number(o.year) >= Number(yearMin))
   if (yearMax)   resultado = resultado.filter(o => Number(o.year) <= Number(yearMax))
   if (tecnica)   resultado = resultado.filter(o => o.technique === tecnica)
@@ -151,10 +149,6 @@ const obrasFiltradas = computed(() => {
           </select>
         </div>
       </div>
-      <label class="check-venta">
-        <input v-model="filtros.soloVenta" type="checkbox" />
-        Solo obras en venta
-      </label>
     </div>
 
     <div v-if="cargando" class="estado-vacio">Cargando obras...</div>

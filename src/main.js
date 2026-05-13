@@ -22,6 +22,7 @@ import PagoCanceladoView from "./views/PagoCanceladoView.vue";
 import FavoritosView from "./views/FavoritosView.vue";
 import MapaArtistasView from "./views/MapaArtistasView.vue";
 import FeedView from "./views/FeedView.vue";
+import AdminView from "./views/AdminView.vue";
 
 // ── Rutas ──────────────────────────────────────────────────────────────────
 const routes = [
@@ -59,6 +60,7 @@ const routes = [
       { path: "favoritos", component: FavoritosView, meta: { requiresAuth: true } },
       { path: "mapa", component: MapaArtistasView },
       { path: "feed", component: FeedView, meta: { requiresAuth: true } },
+      { path: "admin", component: AdminView, meta: { requiresAuth: true } },
     ],
   },
   { path: "/login", component: LoginView },

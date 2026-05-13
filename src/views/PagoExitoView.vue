@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { marcarOfertaPagada } from '../services/ofertas'
 import { crearValoracion } from '../services/valoraciones'
+import { updateArtwork } from '../services/artworks'
 import { getAuth } from 'firebase/auth'
 
 const route = useRoute()
@@ -19,6 +20,9 @@ const enviando = ref(false)
 onMounted(async () => {
   if (ofertaId) {
     await marcarOfertaPagada(ofertaId)
+  }
+  if (obraId) {
+    await updateArtwork(obraId, { forSale: false })
   }
 })
 
